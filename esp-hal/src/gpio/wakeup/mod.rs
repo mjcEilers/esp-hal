@@ -467,6 +467,12 @@ pub(crate) fn isolate_pads_for_deep_sleep() {
             continue;
         }
 
+        // The SPI flash pads (GPIO14..=17 on the ESP32-C3) keep their function: code still runs
+        // from flash after this, and a cache miss on a disconnected bus never returns.
+        if (14..=17).contains(&gpio) {
+            continue;
+        }
+
         // A pad that the user holds keeps its level, which is the purpose of the hold. Isolation
         // would cancel that request.
         if crate::gpio::lp_io::low_level::is_digital_pad_held(gpio) {
